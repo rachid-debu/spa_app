@@ -1,161 +1,228 @@
-import React, { Component, FormEvent } from 'react'
-import '../App.css'
-import PetModel from '../models/PetModel';
-import { RouteComponentProps, withRouter } from 'react-router';
-import { connect } from 'react-redux'
-import { AppState } from '../reducers/petReducer';
-import { Dispatch } from 'redux';
-import { actionFetchPet, actionAddPet, actionEditPet } from '../actions/petActions';
-import { CircularProgress } from '@material-ui/core';
+import React, { Component, FormEvent } from "react";
+import "../App.css";
+import PetModel from "../models/PetModel";
+import { RouteComponentProps, withRouter } from "react-router";
+import { CircularProgress } from "@material-ui/core";
+import PetService from "../services/petService";
+import Header from "./Header";
 
-interface Props extends StateProps, DispatchProps, RouteComponentProps<{rfid?:string}> {
-    pet?:PetModel,
-    edit:boolean
+interface Props extends RouteComponentProps<{ rfid?: string }> {
+
 }
 
-class PetForm extends Component<Props, {}> {
+interface State {
+  pet: PetModel,
+  rfid: string,
+  edit: boolean
+}
 
-    static defaultProps = {
-        edit:false
+class PetForm extends Component<Props, State> {
+
+  constructor(props:Props) {
+    super(props)
+
+    // Initially pet is undefined and we determine if we're on edit or creation mode
+    this.state = {
+      pet: {
+        rfid: '',
+        species: '',
+        race: '',
+        height: 0,
+        weight: 0,
+        description: '',
+        entryDate: new Date(),
+        birthDate: new Date()
+      },
+      rfid: props.match.params.rfid ? props.match.params.rfid : '',
+      // if we have an rfid, it's edit else it's create
+      edit: (props.match.params.rfid !== undefined) ? true : false
     }
+  }
+  
+  onSubmit(event: FormEvent) {
+    // prevent default page refresh/redirect
+    event.preventDefault()
 
-    onSubmit(event:FormEvent) {
-        event.preventDefault()
-        this.props.putPet(this.state as PetModel)
-        this.props.history.push('/')
+    // send the form Edit or Save
+    if (this.state.edit) {
+      // mode is Edit
+      PetService.editPet(this.state.pet)
+      .then((res:any) => {
+        console.log(res)
+        // if we success we redirect to home
+        this.props.history.push("/")
+      })
+      .catch((error: Error) => {
+        // if error we display the error
+        console.log(error)
+      });
+    } else {
+      // mode is Save
+      PetService.addPet(this.state.pet)
+      .then((res:any) => {
+        console.log(res)
+        // if we success we redirect to home
+        this.props.history.push("/")
+      })
+      .catch((error: Error) => {
+        // if error we display the error
+        console.log(error)
+      });
     }
+  }
 
-    onChange(event:any) {
-        let target = event.target
-        let value = (target.type === 'checkbox') ? target.checked : target.value;
-        let name = target.name
+  onChange(event: any) {
+    let target = event.target
+    let value = target.type === "checkbox" ? target.checked : target.value
+    let name = target.name
 
-        this.setState({
-            [name]: value
+    // add the value to the pet state
+    this.setState((prevState) => ({pet : {...prevState.pet, [name]:value}}))
+  }
+
+  componentDidMount() {
+    // If it's edit mode we have an rfid
+    if (this.state.edit) {
+      // we fetch the pet
+      PetService.fetchPet(this.state.rfid)
+        .then((data:PetModel) => {
+          console.log('fetchPet data received from backend', data)
+          this.setState({pet: data})
+        })
+        .catch((error) => {
+          console.log('fetchPet error received from backend', error)
+          this.props.history.push('/details')
         })
     }
+  }
 
-    componentDidMount() {
-        // we set to edit mode
-        PetForm.defaultProps.edit = (this.props.match.params.rfid) ? true : false
+  render() {
+    // shorten variable names
+    let rfid = this.state.rfid
+    let pet = this.state.pet
+    let edit = this.state.edit
 
-        // we bind this to events
-        this.onChange = this.onChange.bind(this)
-        this.onSubmit = this.onSubmit.bind(this)
-
-        // If rfid is in the request
-        if (this.props.match.params.rfid) {
-            // we fetch the pet
-            this.props.fetchPet(this.props.match.params.rfid)
-        }
+    // If we have an RFID but not yet fetched the PET
+    if (pet === undefined && rfid.length) {
+      // We display a loader
+      return <CircularProgress className="absolute-center" />;
     }
 
-    componentWillReceiveProps(props:Props) {
-        this.setState(props.pet ? props.pet : {})
-    }
-
-    render() {
-        // Save values
-        let rfid = this.props.match.params.rfid
-        let pet = this.props.pet
-
-        // If we have an RFID but not yet fetched the PET
-        if (pet === undefined && rfid !== undefined) {
-            // We display a loader
-            return (<CircularProgress className="absolute-center" />)
-        }
-        
-        // We need to prepare dates
-
-        return (
-            <form onSubmit={this.onSubmit} className="container">
-                <fieldset>
-                    <label htmlFor="rfid">
-                        RFID chip number
-                        <input type="text" id="rfid" name="rfid" className="form-control" defaultValue={pet ? pet.rfid : ''} onChange={this.onChange}/>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="species">
-                        Species
-                        <input type="text" id="species" name="species" className="form-control" defaultValue={pet ? pet.species : ''} onChange={this.onChange}/>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="race">
-                        Race
-                        <input type="text" id="race" name="race" className="form-control" defaultValue={pet ? pet.race : ''} onChange={this.onChange}/>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="description">
-                        Description
-                        <textarea id="description" name="description" defaultValue={pet ? pet.description : ''} onChange={this.onChange}/>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="height">
-                        Height
-                        <input type="number" id="height" name="height" className="form-control" defaultValue={pet ? pet.height.toString() : ''} onChange={this.onChange}/>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="weight">
-                        Weight
-                        <input type="number" id="weight" name="weight" className="form-control" defaultValue={pet ? pet.weight.toString() : ''} onChange={this.onChange}/>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="entry_date">
-                        Entry date
-                        <input type="date" id="entry_date" name="entry_date" className="form-control" defaultValue={pet ? new Date(pet.entryDate).toISOString().substr(0, 10) : ''} onChange={this.onChange}/>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <label htmlFor="birth_date">
-                        Birth date
-                        <input type="date" id="birth_date" name="birth_date" className="form-control" defaultValue={pet ? new Date(pet.birthDate).toISOString().substr(0, 10) : ''} onChange={this.onChange}/>
-                    </label>
-                </fieldset>
-                <fieldset>
-                    <button type="submit" className="btn btn-primary">
-                        {
-                            // If we have an rfid, this is edit
-                            rfid ? 'Edit' : 'Save'
-                        }
-                    </button>
-                </fieldset>
-            </form>
-        )
-    }
-
+    return (
+      <div>
+        <Header isHome={false} />
+        <form onSubmit={(event) => this.onSubmit(event)} className="container">
+          <fieldset>
+            <label htmlFor="rfid">
+              RFID chip number
+              <input
+                type="text"
+                id="rfid"
+                name="rfid"
+                className="form-control"
+                value={pet.rfid}
+                onChange={(event) => this.onChange(event)}
+              />
+            </label>
+          </fieldset>
+          <fieldset>
+            <label htmlFor="species">
+              Species
+              <input
+                type="text"
+                id="species"
+                name="species"
+                className="form-control"
+                value={pet.species}
+                onChange={(event) => this.onChange(event)}
+              />
+            </label>
+          </fieldset>
+          <fieldset>
+            <label htmlFor="race">
+              Race
+              <input
+                type="text"
+                id="race"
+                name="race"
+                className="form-control"
+                value={pet.race}
+                onChange={(event) => this.onChange(event)}
+              />
+            </label>
+          </fieldset>
+          <fieldset>
+            <label htmlFor="description">
+              Description
+              <textarea
+                id="description"
+                name="description"
+                value={pet.description}
+                onChange={(event) => this.onChange(event)}
+              />
+            </label>
+          </fieldset>
+          <fieldset>
+            <label htmlFor="height">
+              Height
+              <input
+                type="text"
+                id="height"
+                name="height"
+                className="form-control"
+                value={pet.height.toString()}
+                onChange={(event) => this.onChange(event)}
+              />
+            </label>
+          </fieldset>
+          <fieldset>
+            <label htmlFor="weight">
+              Weight
+              <input
+                type="text"
+                id="weight"
+                name="weight"
+                className="form-control"
+                value={pet.weight.toString()}
+                onChange={(event) => this.onChange(event)}
+              />
+            </label>
+          </fieldset>
+          <fieldset>
+            <label htmlFor="entryDate">
+              Entry date
+              <input
+                type="date"
+                id="entryDate"
+                name="entryDate"
+                className="form-control"
+                defaultValue={new Date(pet.entryDate).toISOString().substr(0, 10)}
+                onChange={(event) => this.onChange(event)}
+              />
+            </label>
+          </fieldset>
+          <fieldset>
+            <label htmlFor="birthDate">
+              Birth date
+              <input
+                type="date"
+                id="birthDate"
+                name="birthDate"
+                className="form-control"
+                defaultValue={new Date(pet.birthDate).toISOString().substr(0, 10)}
+                onChange={(event) => this.onChange(event)}
+              />
+            </label>
+          </fieldset>
+          <fieldset>
+            <button type="submit" className="btn btn-primary">
+              {edit ? "Edit" : "Save"}
+            </button>
+          </fieldset>
+        </form>
+      </div>
+    );
+  }
 }
 
-interface StateProps {
-    pet?: PetModel
-}
-
-interface DispatchProps {
-    fetchPet: typeof actionFetchPet,
-    postPet: typeof actionAddPet,
-    putPet: typeof actionEditPet
-}
-
-// Map the state to props
-const mapStateToProps = (state:AppState):StateProps => {
-    return {
-        pet: state.pet
-    }
-}
-
-// Map dispatch to props
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-    return {
-        fetchPet: (rfid:string) => dispatch(actionFetchPet(rfid)),
-        postPet: (pet:PetModel) => dispatch(actionAddPet(pet)),
-        putPet: (pet:PetModel) => dispatch(actionEditPet(pet)),
-    }
-}
-
-// Connect the component to the redux store
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PetForm))
+export default withRouter(PetForm)

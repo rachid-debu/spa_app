@@ -1,64 +1,80 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import { AppState } from '../reducers/petReducer';
-import { Dispatch } from 'redux';
-import { actionFetchPets } from '../actions/petActions';
-import PetModel from '../models/PetModel';
+import PetModel from '../models/PetModel'
 import PetItem from '../components/PetItem'
-import { Icon } from '@material-ui/core';
+import { Icon, Button } from '@material-ui/core';
 import { RouteComponentProps, withRouter } from 'react-router';
+import PetService from '../services/petService';
+import Header from '../components/Header';
+import { NavLink } from 'react-router-dom';
 
-interface PetListProps extends StateProps, DispatchProps, RouteComponentProps {
+interface Props extends RouteComponentProps {
     
 }
 
-class PetList extends Component<PetListProps> {
+interface State {
+    pets: PetModel[],
+    error?: Error,
+    loading: boolean
+}
+
+
+class PetList extends Component<Props, State> {
+
+    componentWillMount() {
+        this.setState({
+            loading: true,
+            error: undefined,
+            pets: []
+        })
+    }
 
     componentDidMount() {
-        this.props.fetchPets()
+        PetService.fetchPets()
+        .then((data:PetModel[]) => this.setState({pets:data, loading:false}))
+        .catch((error:Error) => this.setState({error:error, loading:false}))
     }
 
     render() {
-        if (this.props.pets === undefined) {
-            return (
+        var element
+
+        // Data is still being fetched 
+        if (this.state.loading) {
+            element = (
                 <Icon>loader</Icon>
             )
         }
 
+        // An error has occured while fetching data
+        else if (this.state.error) {
+            element = (<div>An error has occured while fetching data</div>)
+        }
+
+        // Data has been loaded but is empty
+        else if (!this.state.pets.length) {
+            element = (<div>No pets found, you can add some by clicking here : <NavLink to="/details"><Icon>add</Icon></NavLink></div>)
+        }
+
+        // We can display data
+        else {
+            element = (
+                <div className="container">
+                    {
+                        // Loop through all pets and display a PetItem
+                        this.state.pets.map(function(pet:PetModel, i:number) {
+                            return <PetItem key={pet.rfid} pet={pet}/>
+                        })
+                    }
+                </div>
+            )
+        }
+        
         return (
-            <div className="container">
-                {
-                    // Loop through all pets and display a PetItem
-                    this.props.pets.map(function(pet:PetModel, i:number) {
-                        return <PetItem key={pet.rfid} pet={pet}/>
-                    })
-                }
+            <div>
+                <Header isHome={true} />
+                {element}
             </div>
         )
     }
 }
 
-interface StateProps {
-    pets?: PetModel[]
-}
-
-interface DispatchProps {
-    fetchPets: typeof actionFetchPets
-}
-
-// Map the state to props
-const mapStateToProps = (state:AppState):StateProps => {
-    return {
-        pets: state.pets
-    }
-}
-
-// Map dispatch to props
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-    return {
-        fetchPets: () => dispatch(actionFetchPets())
-    }
-}
-
-// Connect the component to the redux store
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(PetList))
+export default withRouter(PetList)

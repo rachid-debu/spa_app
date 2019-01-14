@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import PetModel from '../models/PetModel';
+import PetModel from '../models/PetModel'
 import { Card, CardHeader, CardContent } from '@material-ui/core'
-import { RouteComponentProps, withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router'
 
 interface Props extends RouteComponentProps {
     pet:PetModel

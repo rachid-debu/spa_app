@@ -1,28 +1,14 @@
 import mongoose, { Schema, model } from 'mongoose'
 
-const speciesAllowed = ["Cat", "Dog", "Bird"]
-
 const PetSchema = new Schema({
     rfid: {
         type: String,
-        required: [true, 'RFID number is required'],
-        // unique: true,
-        // validate: {
-        //     isAsync: true,
-        //     validator: function(v:string, cb:(result:boolean) => void) {
-        //         cb(/\d{3}\.\d{12}/.test(v));
-        //     }, 
-        //     message: (props:{value:string}) => `${props.value} is not a valid RFID number`
-        // }
+        required: [true, 'RFID number is required']
     },
     species: {
         type: String,
         required: true,
-        trim: true,
-        enum: {
-            values: speciesAllowed,
-            message: "We only allow " + speciesAllowed.join(" or ")
-        }
+        trim: true
     },
     race: {
         type: String

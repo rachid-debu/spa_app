@@ -23,6 +23,8 @@ export default class PetService {
     // POST /api/pets
     // Add a Pet
     static async addPet(pet: PetModel) {
+        console.log('a pet will be added', pet)
+        
         return await axios.post('/api/pets/', pet)
             .then((res) => {return res.data})
             .catch((err) => {return err})
@@ -31,6 +33,8 @@ export default class PetService {
     // PUT /api/pets
     // Edit a Pet
     static async editPet(pet: PetModel) {
+        console.log('a pet will be edited', pet)
+
         return await axios.put('/api/pets/', pet)
             .then((res) => {return res.data})
             .catch((err) => {return err})

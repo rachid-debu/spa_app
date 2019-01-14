@@ -17,6 +17,10 @@ fieldset {
     border:none
 }
 
+a {
+    cursor: pointer;
+}
+
 .absolute-center {
     position: absolute;
     top: 0;

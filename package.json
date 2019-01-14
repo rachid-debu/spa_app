@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently -k -n \"TypeScript,Node,React\" -p \"[{name}]\" -c \"blue,yellow,green\" \"npx tsc --watch\" \"nodemon dist/server.js\" \"cd client && npm start\"",
-    "start": "npx tsc && node dist/server.js"
+    "start": "npx tsc && node dist/server.js",
+    "postinstall": "cd client && npm install"
   },
   "repository": {
     "type": "git",

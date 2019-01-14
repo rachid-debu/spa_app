@@ -8,20 +8,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = __importStar(require("mongoose"));
-var speciesAllowed = ["Cat", "Dog", "Bird"];
 var PetSchema = new mongoose_1.Schema({
     rfid: {
         type: String,
-        required: [true, 'RFID number is required'],
+        required: [true, 'RFID number is required']
     },
     species: {
         type: String,
         required: true,
-        trim: true,
-        enum: {
-            values: speciesAllowed,
-            message: "We only allow " + speciesAllowed.join(" or ")
-        }
+        trim: true
     },
     race: {
         type: String
