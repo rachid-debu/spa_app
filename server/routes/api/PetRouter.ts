@@ -12,7 +12,7 @@ PetRouter.get('/', (req:Request, res:Response) => {
     PetModel.find()
         .sort({entryDate: -1})
         .then(pets => res.json(pets))
-        .catch(error => res.json({message:error.message}))
+        .catch(error => res.json(error))
 })
 
 // @route   GET api/pets/:rfid
@@ -22,7 +22,7 @@ PetRouter.get('/:rfid', (req:Request, res:Response) => {
     // Get the pet by its RFID
     PetModel.findOne({rfid:req.params.rfid})
         .then(pet => res.json(pet))
-        .catch(error => res.json({message:error.message}))
+        .catch(error => res.json(error))
 })
 
 // @route   POST api/pets
@@ -44,7 +44,7 @@ PetRouter.post('/', (req:Request, res:Response) => {
     // Persist the pet in DB
     newPet.save()
         .then(success => res.json(success))
-        .catch(error => res.json({message:error.message}))
+        .catch(error => res.json(error))
 })
 
 // @route   PUT api/pets
@@ -63,7 +63,7 @@ PetRouter.put('/', (req:Request, res:Response) => {
         birthDate: req.body.birthDate
     }}, {new:true})
         .then(success => res.json(success))
-        .catch(error => res.json({message:error.message}))
+        .catch(error => res.json(error))
 })
 
 // @route   DELETE api/pets/

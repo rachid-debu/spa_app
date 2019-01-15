@@ -35,6 +35,7 @@ class PetList extends Component<Props, State> {
     }
 
     render() {
+        // will contain the dynamic part of this view
         var element
 
         // Data is still being fetched 
@@ -77,4 +78,4 @@ class PetList extends Component<Props, State> {
     }
 }
 
-export default withRouter(PetList)
+export default PetList

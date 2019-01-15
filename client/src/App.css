@@ -13,14 +13,6 @@ font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
 
-fieldset {
-    border:none
-}
-
-a {
-    cursor: pointer;
-}
-
 .absolute-center {
     position: absolute;
     top: 0;
@@ -28,4 +20,16 @@ a {
     right: 0;
     bottom: 0;
     margin: auto;
+}
+
+.card {
+    cursor: pointer;
+    margin:5px auto;
+}
+
+.width60 {
+    width:60%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

@@ -20,7 +20,7 @@ class PetItem extends Component<Props> {
         var entryDate = new Date(pet.entryDate).toLocaleDateString("en-US")
 
         return (
-            <Card onClick={this.onCardClick.bind(this)} className="card">
+            <Card onClick={this.onCardClick.bind(this)} className="card width60">
                 <CardHeader title={pet.species} subheader={entryDate} />
                 <CardContent>
                     {

@@ -15,7 +15,7 @@ exports.PetRouter.get('/', function (req, res) {
     PetModel_1.PetModel.find()
         .sort({ entryDate: -1 })
         .then(function (pets) { return res.json(pets); })
-        .catch(function (error) { return res.json({ message: error.message }); });
+        .catch(function (error) { return res.json(error); });
 });
 // @route   GET api/pets/:rfid
 // @desc    Get One pet by its RFID
@@ -24,7 +24,7 @@ exports.PetRouter.get('/:rfid', function (req, res) {
     // Get the pet by its RFID
     PetModel_1.PetModel.findOne({ rfid: req.params.rfid })
         .then(function (pet) { return res.json(pet); })
-        .catch(function (error) { return res.json({ message: error.message }); });
+        .catch(function (error) { return res.json(error); });
 });
 // @route   POST api/pets
 // @body    JSON of the PET to insert
@@ -45,7 +45,7 @@ exports.PetRouter.post('/', function (req, res) {
     // Persist the pet in DB
     newPet.save()
         .then(function (success) { return res.json(success); })
-        .catch(function (error) { return res.json({ message: error.message }); });
+        .catch(function (error) { return res.json(error); });
 });
 // @route   PUT api/pets
 // @body    JSON of the the pet to update (RFID has to be provided)
@@ -63,7 +63,7 @@ exports.PetRouter.put('/', function (req, res) {
             birthDate: req.body.birthDate
         } }, { new: true })
         .then(function (success) { return res.json(success); })
-        .catch(function (error) { return res.json({ message: error.message }); });
+        .catch(function (error) { return res.json(error); });
 });
 // @route   DELETE api/pets/
 // @body    JSON with RFID of Pet to delete

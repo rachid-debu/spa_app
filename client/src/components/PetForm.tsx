@@ -2,7 +2,7 @@ import React, { Component, FormEvent } from "react";
 import "../App.css";
 import PetModel from "../models/PetModel";
 import { RouteComponentProps, withRouter } from "react-router";
-import { CircularProgress } from "@material-ui/core";
+import { CircularProgress, TextField, Button, Grid, MuiThemeProvider } from "@material-ui/core";
 import PetService from "../services/petService";
 import Header from "./Header";
 
@@ -13,7 +13,17 @@ interface Props extends RouteComponentProps<{ rfid?: string }> {
 interface State {
   pet: PetModel,
   rfid: string,
-  edit: boolean
+  edit: boolean,
+  errors: {
+    rfid?: string,
+    species?: string,
+    race?: string,
+    height?: string,
+    weight?: string,
+    description?: string,
+    entryDate?: string,
+    birthDate?: string
+  }
 }
 
 class PetForm extends Component<Props, State> {
@@ -35,7 +45,9 @@ class PetForm extends Component<Props, State> {
       },
       rfid: props.match.params.rfid ? props.match.params.rfid : '',
       // if we have an rfid, it's edit else it's create
-      edit: (props.match.params.rfid !== undefined) ? true : false
+      edit: (props.match.params.rfid !== undefined) ? true : false,
+      // by default no errors yet
+      errors: {}
     }
   }
   
@@ -47,26 +59,48 @@ class PetForm extends Component<Props, State> {
     if (this.state.edit) {
       // mode is Edit
       PetService.editPet(this.state.pet)
-      .then((res:any) => {
-        console.log(res)
-        // if we success we redirect to home
-        this.props.history.push("/")
+      .then((res) => {
+        // if something went wrong res.errors contains informations
+        if (res.hasOwnProperty('errors') && res.errors) {
+          // we 'temp' errors so we can display them all at once
+          let errorsTemp:any = {}
+          for (let key in res.errors) {
+            let message = res.errors[key].message
+            errorsTemp[key] = message
+          }
+          // add errors to state
+          this.setState({errors:errorsTemp})
+        } else {
+          // if we success we redirect to home
+          this.props.history.push("/")
+        }
       })
       .catch((error: Error) => {
-        // if error we display the error
-        console.log(error)
+        // UNEXPECTED ! we display an obnoxious alert
+        alert('An error occured with the server, please contact customer support.')
       });
     } else {
       // mode is Save
       PetService.addPet(this.state.pet)
-      .then((res:any) => {
-        console.log(res)
-        // if we success we redirect to home
-        this.props.history.push("/")
+      .then((res) => {
+        // if something went wrong res.errors contains informations
+        if (res.hasOwnProperty('errors') && res.errors) {
+          // we 'temp' errors so we can display them all at once
+          let errorsTemp:any = {}
+          for (let key in res.errors) {
+            let message = res.errors[key].message
+            errorsTemp[key] = message
+          }
+          // add errors to state
+          this.setState({errors:errorsTemp})
+        } else {
+          // if we success we redirect to home
+          this.props.history.push("/")
+        }
       })
       .catch((error: Error) => {
-        // if error we display the error
-        console.log(error)
+        // UNEXPECTED ! we display an obnoxious alert
+        alert('An error occured with the server, please contact customer support.')
       });
     }
   }
@@ -103,126 +137,125 @@ class PetForm extends Component<Props, State> {
     let edit = this.state.edit
 
     // If we have an RFID but not yet fetched the PET
-    if (pet === undefined && rfid.length) {
+    if (!pet.rfid.length && rfid.length) {
       // We display a loader
       return <CircularProgress className="absolute-center" />;
     }
 
     return (
-      <div>
+      <React.Fragment>
         <Header isHome={false} />
-        <form onSubmit={(event) => this.onSubmit(event)} className="container">
-          <fieldset>
-            <label htmlFor="rfid">
-              RFID chip number
-              <input
-                type="text"
-                id="rfid"
-                name="rfid"
-                className="form-control"
-                value={pet.rfid}
-                onChange={(event) => this.onChange(event)}
-              />
-            </label>
-          </fieldset>
-          <fieldset>
-            <label htmlFor="species">
-              Species
-              <input
-                type="text"
-                id="species"
-                name="species"
-                className="form-control"
-                value={pet.species}
-                onChange={(event) => this.onChange(event)}
-              />
-            </label>
-          </fieldset>
-          <fieldset>
-            <label htmlFor="race">
-              Race
-              <input
-                type="text"
-                id="race"
-                name="race"
-                className="form-control"
-                value={pet.race}
-                onChange={(event) => this.onChange(event)}
-              />
-            </label>
-          </fieldset>
-          <fieldset>
-            <label htmlFor="description">
-              Description
-              <textarea
-                id="description"
-                name="description"
-                value={pet.description}
-                onChange={(event) => this.onChange(event)}
-              />
-            </label>
-          </fieldset>
-          <fieldset>
-            <label htmlFor="height">
-              Height
-              <input
-                type="text"
-                id="height"
-                name="height"
-                className="form-control"
-                value={pet.height.toString()}
-                onChange={(event) => this.onChange(event)}
-              />
-            </label>
-          </fieldset>
-          <fieldset>
-            <label htmlFor="weight">
-              Weight
-              <input
-                type="text"
-                id="weight"
-                name="weight"
-                className="form-control"
-                value={pet.weight.toString()}
-                onChange={(event) => this.onChange(event)}
-              />
-            </label>
-          </fieldset>
-          <fieldset>
-            <label htmlFor="entryDate">
-              Entry date
-              <input
-                type="date"
-                id="entryDate"
-                name="entryDate"
-                className="form-control"
-                defaultValue={new Date(pet.entryDate).toISOString().substr(0, 10)}
-                onChange={(event) => this.onChange(event)}
-              />
-            </label>
-          </fieldset>
-          <fieldset>
-            <label htmlFor="birthDate">
-              Birth date
-              <input
-                type="date"
-                id="birthDate"
-                name="birthDate"
-                className="form-control"
-                defaultValue={new Date(pet.birthDate).toISOString().substr(0, 10)}
-                onChange={(event) => this.onChange(event)}
-              />
-            </label>
-          </fieldset>
-          <fieldset>
-            <button type="submit" className="btn btn-primary">
+        <Grid container
+          direction="column"
+          spacing={0}
+          alignItems="center">
+          <form onSubmit={(event) => this.onSubmit(event)}>
+            <TextField
+              label="RFID chip number"
+              type="text"
+              id="rfid"
+              name="rfid"
+              autoFocus
+              margin="normal"
+              fullWidth
+              value={pet.rfid}
+              onChange={(event) => this.onChange(event)}
+              helperText={this.state.errors.rfid}
+              error={(this.state.errors.rfid !== undefined)}
+            />
+            <TextField
+              label="Species"
+              type="text"
+              id="species"
+              name="species"
+              margin="normal"
+              fullWidth
+              value={pet.species}
+              onChange={(event) => this.onChange(event)}
+              helperText={this.state.errors.species}
+              error={(this.state.errors.species !== undefined)}
+            />
+            <TextField
+              label="Race"
+              type="text"
+              id="race"
+              name="race"
+              margin="normal"
+              fullWidth
+              value={pet.race}
+              onChange={(event) => this.onChange(event)}
+              helperText={this.state.errors.race}
+              error={(this.state.errors.race !== undefined)}
+            />
+            <TextField
+              multiline
+              rowsMax="4"
+              label="Description"
+              id="description"
+              name="description"
+              margin="normal"
+              fullWidth
+              value={pet.description}
+              onChange={(event) => this.onChange(event)}
+              helperText={this.state.errors.description}
+              error={(this.state.errors.description !== undefined)}
+            />
+            <TextField
+              label="Height"
+              type="text"
+              id="height"
+              name="height"
+              margin="normal"
+              fullWidth
+              value={pet.height.toString()}
+              onChange={(event) => this.onChange(event)}
+              helperText={this.state.errors.height}
+              error={(this.state.errors.height !== undefined)}
+            />
+            <TextField
+              label="Weight"
+              type="text"
+              id="weight"
+              name="weight"
+              margin="normal"
+              fullWidth
+              value={pet.weight.toString()}
+              onChange={(event) => this.onChange(event)}
+              helperText={this.state.errors.weight}
+              error={(this.state.errors.weight !== undefined)}
+            />
+            <TextField
+              label="Entry date"
+              type="date"
+              id="entryDate"
+              name="entryDate"
+              margin="normal"
+              fullWidth
+              defaultValue={new Date(pet.entryDate).toISOString().substr(0, 10)}
+              onChange={(event) => this.onChange(event)}
+              helperText={this.state.errors.entryDate}
+              error={(this.state.errors.entryDate !== undefined)}
+            />
+            <TextField
+              label="Birth date"
+              type="date"
+              id="birthDate"
+              name="birthDate"
+              margin="normal"
+              fullWidth
+              defaultValue={new Date(pet.birthDate).toISOString().substr(0, 10)}
+              onChange={(event) => this.onChange(event)}
+              helperText={this.state.errors.birthDate}
+              error={(this.state.errors.birthDate !== undefined)}
+            />
+            <Button type="submit" color="primary" variant="contained">
               {edit ? "Edit" : "Save"}
-            </button>
-          </fieldset>
-        </form>
-      </div>
-    );
+            </Button>
+          </form>
+        </Grid>
+      </React.Fragment>
+    )
   }
 }
 
-export default withRouter(PetForm)
+export default PetForm
