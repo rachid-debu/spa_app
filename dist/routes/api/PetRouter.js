@@ -10,7 +10,7 @@ exports.PetRouter = express_1.default.Router();
 // @route   GET api/pets
 // @desc    Get All pets
 // @acess   Public
-exports.PetRouter.get('/', function (req, res) {
+exports.PetRouter.get("/", function (req, res) {
     // Get all pets sorted DESC entryDate
     PetModel_1.PetModel.find()
         .sort({ entryDate: -1 })
@@ -20,7 +20,7 @@ exports.PetRouter.get('/', function (req, res) {
 // @route   GET api/pets/:rfid
 // @desc    Get One pet by its RFID
 // @acess   Public
-exports.PetRouter.get('/:rfid', function (req, res) {
+exports.PetRouter.get("/:rfid", function (req, res) {
     // Get the pet by its RFID
     PetModel_1.PetModel.findOne({ rfid: req.params.rfid })
         .then(function (pet) { return res.json(pet); })
@@ -30,7 +30,7 @@ exports.PetRouter.get('/:rfid', function (req, res) {
 // @body    JSON of the PET to insert
 // @desc    Add a pet
 // @acess   Public (TODO: make it private with auth)
-exports.PetRouter.post('/', function (req, res) {
+exports.PetRouter.post("/", function (req, res) {
     // Create Pet from request body
     var newPet = new PetModel_1.PetModel({
         rfid: req.body.rfid,
@@ -43,7 +43,8 @@ exports.PetRouter.post('/', function (req, res) {
         birthDate: req.body.birthDate
     });
     // Persist the pet in DB
-    newPet.save()
+    newPet
+        .save()
         .then(function (success) { return res.json(success); })
         .catch(function (error) { return res.json(error); });
 });
@@ -51,9 +52,10 @@ exports.PetRouter.post('/', function (req, res) {
 // @body    JSON of the the pet to update (RFID has to be provided)
 // @desc    Update a pet
 // @acess   Public (TODO: make it private with auth)
-exports.PetRouter.put('/', function (req, res) {
+exports.PetRouter.put("/", function (req, res) {
     // Find and persist in DB
-    PetModel_1.PetModel.findOneAndUpdate({ rfid: req.body.rfid }, { $set: {
+    PetModel_1.PetModel.findOneAndUpdate({ rfid: req.body.rfid }, {
+        $set: {
             species: req.body.species,
             race: req.body.race,
             height: req.body.height,
@@ -61,7 +63,8 @@ exports.PetRouter.put('/', function (req, res) {
             description: req.body.description,
             entryDate: req.body.entryDate,
             birthDate: req.body.birthDate
-        } }, { new: true })
+        }
+    }, { new: true })
         .then(function (success) { return res.json(success); })
         .catch(function (error) { return res.json(error); });
 });
@@ -69,7 +72,7 @@ exports.PetRouter.put('/', function (req, res) {
 // @body    JSON with RFID of Pet to delete
 // @desc    Delete a pet
 // @acess   Public (TODO: make it private with auth)
-exports.PetRouter.delete('/', function (req, res) {
+exports.PetRouter.delete("/", function (req, res) {
     // Find and delete
     PetModel_1.PetModel.findOneAndDelete({ rfid: req.body.rfid })
         .then(function (success) { return res.json(success); })
