@@ -1,10 +1,10 @@
-import React, { Component, FormEvent } from "react";
-import "../App.css";
-import PetModel from "../models/PetModel";
-import { RouteComponentProps, withRouter } from "react-router";
-import { CircularProgress, TextField, Button, Grid, MuiThemeProvider } from "@material-ui/core";
-import PetService from "../services/petService";
-import Header from "./Header";
+import React, { Component, FormEvent } from "react"
+import "../App.css"
+import PetModel from "../models/PetModel"
+import { RouteComponentProps } from "react-router"
+import { CircularProgress, TextField, Button, Grid } from "@material-ui/core"
+import PetService from "../services/petService"
+import Header from "./Header"
 
 interface Props extends RouteComponentProps<{ rfid?: string }> {
 

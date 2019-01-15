@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import PetModel from '../models/PetModel'
 import PetItem from '../components/PetItem'
-import { Icon, Button } from '@material-ui/core';
-import { RouteComponentProps, withRouter } from 'react-router';
-import PetService from '../services/petService';
-import Header from '../components/Header';
-import { NavLink } from 'react-router-dom';
+import { Icon } from '@material-ui/core'
+import { RouteComponentProps } from 'react-router'
+import PetService from '../services/petService'
+import Header from '../components/Header'
+import { NavLink } from 'react-router-dom'
 
 interface Props extends RouteComponentProps {
     
