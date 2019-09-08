@@ -1,3 +1,35 @@
 {
-	"extends": "tslint-config-standard"
+	"extends": "tslint:recommended",
+	"rules": {
+		"array-type": [
+			true,
+			"array"
+		],
+		"interface-name": false,
+		"max-line-length": {
+			"options": [
+				140
+			]
+		},
+		"indent": [
+			true,
+			"tabs",
+			4
+		],
+		"no-console": false,
+		"no-floating-promises": true,
+		"no-switch-case-fall-through": true,
+		"prefer-switch": [
+			true,
+			{
+				"min-cases": 3
+			}
+		],
+		"no-return-await": true,
+		"object-literal-sort-keys": false,
+		"quotemark": [
+			true,
+			"single"
+		]
+	}
 }
